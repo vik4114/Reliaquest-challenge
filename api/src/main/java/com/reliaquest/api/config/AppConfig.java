@@ -6,21 +6,22 @@ import io.netty.handler.ssl.SslContextBuilder;
 import io.netty.handler.ssl.util.InsecureTrustManagerFactory;
 import io.netty.handler.timeout.ReadTimeoutHandler;
 import io.netty.handler.timeout.WriteTimeoutHandler;
+import java.time.Duration;
+import java.util.concurrent.TimeUnit;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.EnableAspectJAutoProxy;
 import org.springframework.http.client.reactive.ReactorClientHttpConnector;
 import org.springframework.retry.annotation.EnableRetry;
 import org.springframework.web.reactive.function.client.ExchangeStrategies;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.netty.http.client.HttpClient;
 
-import java.time.Duration;
-import java.util.concurrent.TimeUnit;
-
 @Configuration
 @EnableRetry
+@EnableAspectJAutoProxy(exposeProxy = true)
 @Slf4j
 public class AppConfig {
 
@@ -74,4 +75,3 @@ public class AppConfig {
         }
     }
 }
-

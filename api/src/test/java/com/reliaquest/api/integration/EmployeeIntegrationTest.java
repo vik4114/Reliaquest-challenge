@@ -1,10 +1,20 @@
 package com.reliaquest.api.integration;
 
+import static org.hamcrest.Matchers.*;
+import static org.mockserver.model.HttpRequest.request;
+import static org.mockserver.model.HttpResponse.response;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.reliaquest.api.dto.EmployeeCreateRequest;
 import com.reliaquest.api.dto.EmployeeDTO;
 import com.reliaquest.api.model.EmployeeListResponse;
 import com.reliaquest.api.model.EmployeeResponse;
+import com.reliaquest.api.model.GenericResponse;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Objects;
 import org.junit.jupiter.api.*;
 import org.mockserver.integration.ClientAndServer;
 import org.mockserver.verify.VerificationTimes;
@@ -18,21 +28,9 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Objects;
-
-import static org.hamcrest.Matchers.*;
-import static org.mockserver.model.HttpRequest.request;
-import static org.mockserver.model.HttpResponse.response;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
-
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureWebMvc
-@TestPropertySource(properties = {
-        "server.api.url=http://localhost:${mockserver.port}/api/v1"
-})
+@TestPropertySource(properties = {"server.api.url=http://localhost:${mockserver.port}/api/v1"})
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class EmployeeIntegrationTest {
 
@@ -64,8 +62,8 @@ class EmployeeIntegrationTest {
     void init() {
         mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext).build();
         mockServer.reset();
-        cacheManager.getCacheNames().forEach(name ->
-            Objects.requireNonNull(cacheManager.getCache(name)).clear());
+        cacheManager.getCacheNames().forEach(name -> Objects.requireNonNull(cacheManager.getCache(name))
+                .clear());
     }
 
     @Test
@@ -73,30 +71,29 @@ class EmployeeIntegrationTest {
     @DisplayName("GET /api/v1/employee - Should return all employees")
     void shouldGetAllEmployees() throws Exception {
         List<EmployeeDTO> employees = Arrays.asList(
-            createEmployee("1", "John Doe", 75000, 30, "Software Engineer", "john.doe@company.com"),
-            createEmployee("2", "Jane Smith", 85000, 28, "Senior Developer", "jane.smith@company.com")
-        );
+                createEmployee("1", "John Doe", 75000, 30, "Software Engineer", "john.doe@company.com"),
+                createEmployee("2", "Jane Smith", 85000, 28, "Senior Developer", "jane.smith@company.com"));
         EmployeeListResponse response = new EmployeeListResponse();
         response.setData(employees);
         response.setStatus("success");
 
         mockServer
-            .when(request().withMethod("GET").withPath("/api/v1/employee"))
-            .respond(response()
-                .withStatusCode(200)
-                .withHeader("Content-Type", "application/json")
-                .withBody(objectMapper.writeValueAsString(response)));
+                .when(request().withMethod("GET").withPath("/api/v1/employee"))
+                .respond(response()
+                        .withStatusCode(200)
+                        .withHeader("Content-Type", "application/json")
+                        .withBody(objectMapper.writeValueAsString(response)));
 
         mockMvc.perform(get(BASE_URL))
-            .andExpect(status().isOk())
-            .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-            .andExpect(jsonPath("$", hasSize(2)))
-            .andExpect(jsonPath("$[0].id", is("1")))
-            .andExpect(jsonPath("$[0].name", is("John Doe")))
-            .andExpect(jsonPath("$[0].salary", is(75000)))
-            .andExpect(jsonPath("$[1].id", is("2")))
-            .andExpect(jsonPath("$[1].name", is("Jane Smith")))
-            .andExpect(jsonPath("$[1].salary", is(85000)));
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$", hasSize(2)))
+                .andExpect(jsonPath("$[0].id", is("1")))
+                .andExpect(jsonPath("$[0].name", is("John Doe")))
+                .andExpect(jsonPath("$[0].salary", is(75000)))
+                .andExpect(jsonPath("$[1].id", is("2")))
+                .andExpect(jsonPath("$[1].name", is("Jane Smith")))
+                .andExpect(jsonPath("$[1].salary", is(85000)));
     }
 
     @Test
@@ -104,27 +101,28 @@ class EmployeeIntegrationTest {
     @DisplayName("GET /api/v1/employee/{id} - Should return employee by ID")
     void shouldGetEmployeeById() throws Exception {
         String employeeId = "1";
-        EmployeeDTO employee = createEmployee(employeeId, "John Doe", 75000, 30, "Software Engineer", "john.doe@company.com");
+        EmployeeDTO employee =
+                createEmployee(employeeId, "John Doe", 75000, 30, "Software Engineer", "john.doe@company.com");
         EmployeeResponse response = new EmployeeResponse();
         response.setData(employee);
         response.setStatus("success");
 
         mockServer
-            .when(request().withMethod("GET").withPath("/api/v1/employee/" + employeeId))
-            .respond(response()
-                .withStatusCode(200)
-                .withHeader("Content-Type", "application/json")
-                .withBody(objectMapper.writeValueAsString(response)));
+                .when(request().withMethod("GET").withPath("/api/v1/employee/" + employeeId))
+                .respond(response()
+                        .withStatusCode(200)
+                        .withHeader("Content-Type", "application/json")
+                        .withBody(objectMapper.writeValueAsString(response)));
 
         mockMvc.perform(get(BASE_URL + "/{id}", employeeId))
-            .andExpect(status().isOk())
-            .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-            .andExpect(jsonPath("$.id", is(employeeId)))
-            .andExpect(jsonPath("$.name", is("John Doe")))
-            .andExpect(jsonPath("$.salary", is(75000)))
-            .andExpect(jsonPath("$.age", is(30)))
-            .andExpect(jsonPath("$.title", is("Software Engineer")))
-            .andExpect(jsonPath("$.email", is("john.doe@company.com")));
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.id", is(employeeId)))
+                .andExpect(jsonPath("$.name", is("John Doe")))
+                .andExpect(jsonPath("$.salary", is(75000)))
+                .andExpect(jsonPath("$.age", is(30)))
+                .andExpect(jsonPath("$.title", is("Software Engineer")))
+                .andExpect(jsonPath("$.email", is("john.doe@company.com")));
     }
 
     @Test
@@ -134,13 +132,10 @@ class EmployeeIntegrationTest {
         String nonExistentId = "999";
 
         mockServer
-            .when(request().withMethod("GET").withPath("/api/v1/employee/" + nonExistentId))
-            .respond(response()
-                .withStatusCode(404)
-                .withHeader("Content-Type", "application/json"));
+                .when(request().withMethod("GET").withPath("/api/v1/employee/" + nonExistentId))
+                .respond(response().withStatusCode(404).withHeader("Content-Type", "application/json"));
 
-        mockMvc.perform(get(BASE_URL + "/{id}", nonExistentId))
-            .andExpect(status().isNotFound());
+        mockMvc.perform(get(BASE_URL + "/{id}", nonExistentId)).andExpect(status().isNotFound());
     }
 
     @Test
@@ -153,28 +148,29 @@ class EmployeeIntegrationTest {
         createRequest.setAge(27);
         createRequest.setTitle("Software Developer");
 
-        EmployeeDTO createdEmployee = createEmployee("123", "New Employee", 70000, 27, "Software Developer", "new.employee@company.com");
+        EmployeeDTO createdEmployee =
+                createEmployee("123", "New Employee", 70000, 27, "Software Developer", "new.employee@company.com");
         EmployeeResponse response = new EmployeeResponse();
         response.setData(createdEmployee);
         response.setStatus("success");
 
         mockServer
-            .when(request().withMethod("POST").withPath("/api/v1/employee"))
-            .respond(response()
-                .withStatusCode(201)
-                .withHeader("Content-Type", "application/json")
-                .withBody(objectMapper.writeValueAsString(response)));
+                .when(request().withMethod("POST").withPath("/api/v1/employee"))
+                .respond(response()
+                        .withStatusCode(201)
+                        .withHeader("Content-Type", "application/json")
+                        .withBody(objectMapper.writeValueAsString(response)));
 
         mockMvc.perform(post(BASE_URL)
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(createRequest)))
-            .andExpect(status().isCreated())
-            .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-            .andExpect(jsonPath("$.id", is("123")))
-            .andExpect(jsonPath("$.name", is("New Employee")))
-            .andExpect(jsonPath("$.salary", is(70000)))
-            .andExpect(jsonPath("$.age", is(27)))
-            .andExpect(jsonPath("$.title", is("Software Developer")));
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(createRequest)))
+                .andExpect(status().isCreated())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.id", is("123")))
+                .andExpect(jsonPath("$.name", is("New Employee")))
+                .andExpect(jsonPath("$.salary", is(70000)))
+                .andExpect(jsonPath("$.age", is(27)))
+                .andExpect(jsonPath("$.title", is("Software Developer")));
     }
 
     @Test
@@ -187,9 +183,9 @@ class EmployeeIntegrationTest {
         invalidRequest.setAge(15);
 
         mockMvc.perform(post(BASE_URL)
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(invalidRequest)))
-            .andExpect(status().isBadRequest());
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(invalidRequest)))
+                .andExpect(status().isBadRequest());
     }
 
     @Test
@@ -197,14 +193,13 @@ class EmployeeIntegrationTest {
     @DisplayName("Should handle rate limiting (429 Too Many Requests)")
     void shouldHandleRateLimiting() throws Exception {
         mockServer
-            .when(request().withMethod("GET").withPath("/api/v1/employee"))
-            .respond(response()
-                .withStatusCode(429)
-                .withHeader("Content-Type", "application/json")
-                .withBody("{\"message\":\"Rate limit exceeded\"}"));
+                .when(request().withMethod("GET").withPath("/api/v1/employee"))
+                .respond(response()
+                        .withStatusCode(429)
+                        .withHeader("Content-Type", "application/json")
+                        .withBody("{\"message\":\"Rate limit exceeded\"}"));
 
-        mockMvc.perform(get(BASE_URL))
-            .andExpect(status().isTooManyRequests());
+        mockMvc.perform(get(BASE_URL)).andExpect(status().isTooManyRequests());
     }
 
     @Test
@@ -212,70 +207,238 @@ class EmployeeIntegrationTest {
     @DisplayName("Should handle server errors (500 Internal Server Error)")
     void shouldHandleServerErrors() throws Exception {
         mockServer
-            .when(request().withMethod("GET").withPath("/api/v1/employee"))
-            .respond(response()
-                .withStatusCode(500)
-                .withHeader("Content-Type", "application/json")
-                .withBody("{\"message\":\"Internal server error\"}"));
+                .when(request().withMethod("GET").withPath("/api/v1/employee"))
+                .respond(response()
+                        .withStatusCode(500)
+                        .withHeader("Content-Type", "application/json")
+                        .withBody("{\"message\":\"Internal server error\"}"));
 
-        mockMvc.perform(get(BASE_URL))
-            .andExpect(status().isInternalServerError());
+        mockMvc.perform(get(BASE_URL)).andExpect(status().isInternalServerError());
     }
 
     @Test
     @Order(8)
-    @DisplayName("Should test caching functionality for fetchAll")
-    void shouldTestCaching() throws Exception {
+    @DisplayName("DELETE /api/v1/employee/{id} - Should delete employee successfully")
+    void shouldDeleteEmployee() throws Exception {
+        String employeeId = "1";
+        EmployeeDTO employee =
+                createEmployee(employeeId, "John Doe", 75000, 30, "Software Engineer", "john.doe@company.com");
+        EmployeeResponse employeeResponse = new EmployeeResponse();
+        employeeResponse.setData(employee);
+        employeeResponse.setStatus("success");
+
+        mockServer
+                .when(request().withMethod("GET").withPath("/api/v1/employee/" + employeeId))
+                .respond(response()
+                        .withStatusCode(200)
+                        .withHeader("Content-Type", "application/json")
+                        .withBody(objectMapper.writeValueAsString(employeeResponse)));
+
+        GenericResponse deleteResponse = new GenericResponse();
+        deleteResponse.setData("true");
+        deleteResponse.setStatus("success");
+
+        mockServer
+                .when(request().withMethod("DELETE").withPath("/api/v1/employee"))
+                .respond(response()
+                        .withStatusCode(200)
+                        .withHeader("Content-Type", "application/json")
+                        .withBody(objectMapper.writeValueAsString(deleteResponse)));
+
+        mockMvc.perform(delete(BASE_URL + "/{id}", employeeId))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType("text/plain;charset=UTF-8"))
+                .andExpect(content().string("John Doe"));
+    }
+
+    @Test
+    @Order(9)
+    @DisplayName("DELETE /api/v1/employee/{id} - Should return 404 for non-existent employee")
+    void shouldReturn404WhenDeletingNonExistentEmployee() throws Exception {
+        String nonExistentId = "999";
+
+        mockServer
+                .when(request().withMethod("GET").withPath("/api/v1/employee/" + nonExistentId))
+                .respond(response().withStatusCode(404).withHeader("Content-Type", "application/json"));
+
+        mockMvc.perform(delete(BASE_URL + "/{id}", nonExistentId)).andExpect(status().isNotFound());
+    }
+
+    @Test
+    @Order(10)
+    @DisplayName("DELETE /api/v1/employee/{id} - Should handle delete API failure")
+    void shouldHandleDeleteApiFailure() throws Exception {
+        String employeeId = "1";
+        EmployeeDTO employee =
+                createEmployee(employeeId, "John Doe", 75000, 30, "Software Engineer", "john.doe@company.com");
+        EmployeeResponse employeeResponse = new EmployeeResponse();
+        employeeResponse.setData(employee);
+        employeeResponse.setStatus("success");
+
+        mockServer
+                .when(request().withMethod("GET").withPath("/api/v1/employee/" + employeeId))
+                .respond(response()
+                        .withStatusCode(200)
+                        .withHeader("Content-Type", "application/json")
+                        .withBody(objectMapper.writeValueAsString(employeeResponse)));
+
+        GenericResponse deleteResponse = new GenericResponse();
+        deleteResponse.setData("false");
+        deleteResponse.setStatus("error");
+
+        mockServer
+                .when(request().withMethod("DELETE").withPath("/api/v1/employee"))
+                .respond(response()
+                        .withStatusCode(200)
+                        .withHeader("Content-Type", "application/json")
+                        .withBody(objectMapper.writeValueAsString(deleteResponse)));
+
+        mockMvc.perform(delete(BASE_URL + "/{id}", employeeId)).andExpect(status().isOk());
+    }
+
+    @Test
+    @Order(11)
+    @DisplayName("DELETE /api/v1/employee/{id} - Should handle delete API server error")
+    void shouldHandleDeleteServerError() throws Exception {
+        String employeeId = "1";
+        EmployeeDTO employee =
+                createEmployee(employeeId, "John Doe", 75000, 30, "Software Engineer", "john.doe@company.com");
+        EmployeeResponse employeeResponse = new EmployeeResponse();
+        employeeResponse.setData(employee);
+        employeeResponse.setStatus("success");
+
+        mockServer
+                .when(request().withMethod("GET").withPath("/api/v1/employee/" + employeeId))
+                .respond(response()
+                        .withStatusCode(200)
+                        .withHeader("Content-Type", "application/json")
+                        .withBody(objectMapper.writeValueAsString(employeeResponse)));
+
+        mockServer
+                .when(request().withMethod("DELETE").withPath("/api/v1/employee"))
+                .respond(response()
+                        .withStatusCode(500)
+                        .withHeader("Content-Type", "application/json")
+                        .withBody("{\"message\":\"Internal server error\"}"));
+
+        mockMvc.perform(delete(BASE_URL + "/{id}", employeeId)).andExpect(status().isInternalServerError());
+    }
+
+    @Test
+    @Order(12)
+    @DisplayName("Should test cache eviction on delete")
+    void shouldTestCacheEvictionOnDelete() throws Exception {
         List<EmployeeDTO> employees = Arrays.asList(
-            createEmployee("1", "John Doe", 75000, 30, "Software Engineer", "john.doe@company.com")
-        );
+                createEmployee("1", "John Doe", 75000, 30, "Software Engineer", "john.doe@company.com"),
+                createEmployee("2", "Jane Smith", 85000, 28, "Senior Developer", "jane.smith@company.com"));
         EmployeeListResponse response = new EmployeeListResponse();
         response.setData(employees);
         response.setStatus("success");
 
         mockServer
-            .when(request().withMethod("GET").withPath("/api/v1/employee"))
-            .respond(response()
-                .withStatusCode(200)
-                .withHeader("Content-Type", "application/json")
-                .withBody(objectMapper.writeValueAsString(response)));
+                .when(request().withMethod("GET").withPath("/api/v1/employee"))
+                .respond(response()
+                        .withStatusCode(200)
+                        .withHeader("Content-Type", "application/json")
+                        .withBody(objectMapper.writeValueAsString(response)));
+
+        mockMvc.perform(get(BASE_URL)).andExpect(status().isOk()).andExpect(jsonPath("$", hasSize(2)));
+
+        String employeeId = "1";
+        EmployeeDTO employee =
+                createEmployee(employeeId, "John Doe", 75000, 30, "Software Engineer", "john.doe@company.com");
+        EmployeeResponse employeeResponse = new EmployeeResponse();
+        employeeResponse.setData(employee);
+        employeeResponse.setStatus("success");
+
+        mockServer
+                .when(request().withMethod("GET").withPath("/api/v1/employee/" + employeeId))
+                .respond(response()
+                        .withStatusCode(200)
+                        .withHeader("Content-Type", "application/json")
+                        .withBody(objectMapper.writeValueAsString(employeeResponse)));
+
+        GenericResponse deleteResponse = new GenericResponse();
+        deleteResponse.setData("true");
+        deleteResponse.setStatus("success");
+
+        mockServer
+                .when(request().withMethod("DELETE").withPath("/api/v1/employee"))
+                .respond(response()
+                        .withStatusCode(200)
+                        .withHeader("Content-Type", "application/json")
+                        .withBody(objectMapper.writeValueAsString(deleteResponse)));
+
+        mockMvc.perform(delete(BASE_URL + "/{id}", employeeId)).andExpect(status().isOk());
+
+        List<EmployeeDTO> remainingEmployees = Arrays.asList(
+                createEmployee("2", "Jane Smith", 85000, 28, "Senior Developer", "jane.smith@company.com"));
+        EmployeeListResponse updatedResponse = new EmployeeListResponse();
+        updatedResponse.setData(remainingEmployees);
+        updatedResponse.setStatus("success");
+
+        mockServer.reset();
+        mockServer
+                .when(request().withMethod("GET").withPath("/api/v1/employee"))
+                .respond(response()
+                        .withStatusCode(200)
+                        .withHeader("Content-Type", "application/json")
+                        .withBody(objectMapper.writeValueAsString(updatedResponse)));
 
         mockMvc.perform(get(BASE_URL))
-            .andExpect(status().isOk())
-            .andExpect(jsonPath("$", hasSize(1)))
-            .andExpect(jsonPath("$[0].name", is("John Doe")));
-
-        mockMvc.perform(get(BASE_URL))
-            .andExpect(status().isOk())
-            .andExpect(jsonPath("$", hasSize(1)))
-            .andExpect(jsonPath("$[0].name", is("John Doe")));
-
-        mockServer.verify(
-            request().withMethod("GET").withPath("/api/v1/employee"),
-            VerificationTimes.exactly(1)
-        );
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(1)))
+                .andExpect(jsonPath("$[0].name", is("Jane Smith")));
     }
 
     @Test
-    @Order(9)
+    @Order(13)
+    @DisplayName("Should test caching functionality for fetchAll")
+    void shouldTestCaching() throws Exception {
+        List<EmployeeDTO> employees =
+                Arrays.asList(createEmployee("1", "John Doe", 75000, 30, "Software Engineer", "john.doe@company.com"));
+        EmployeeListResponse response = new EmployeeListResponse();
+        response.setData(employees);
+        response.setStatus("success");
+
+        mockServer
+                .when(request().withMethod("GET").withPath("/api/v1/employee"))
+                .respond(response()
+                        .withStatusCode(200)
+                        .withHeader("Content-Type", "application/json")
+                        .withBody(objectMapper.writeValueAsString(response)));
+
+        mockMvc.perform(get(BASE_URL))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(1)))
+                .andExpect(jsonPath("$[0].name", is("John Doe")));
+
+        mockMvc.perform(get(BASE_URL))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(1)))
+                .andExpect(jsonPath("$[0].name", is("John Doe")));
+
+        mockServer.verify(request().withMethod("GET").withPath("/api/v1/employee"), VerificationTimes.exactly(1));
+    }
+
+    @Test
+    @Order(14)
     @DisplayName("Should test cache eviction on create")
     void shouldTestCacheEvictionOnCreate() throws Exception {
-        List<EmployeeDTO> initialEmployees = Arrays.asList(
-            createEmployee("1", "John Doe", 75000, 30, "Software Engineer", "john.doe@company.com")
-        );
+        List<EmployeeDTO> initialEmployees =
+                Arrays.asList(createEmployee("1", "John Doe", 75000, 30, "Software Engineer", "john.doe@company.com"));
         EmployeeListResponse initialResponse = new EmployeeListResponse();
         initialResponse.setData(initialEmployees);
         initialResponse.setStatus("success");
 
         mockServer
-            .when(request().withMethod("GET").withPath("/api/v1/employee"))
-            .respond(response()
-                .withStatusCode(200)
-                .withHeader("Content-Type", "application/json")
-                .withBody(objectMapper.writeValueAsString(initialResponse)));
+                .when(request().withMethod("GET").withPath("/api/v1/employee"))
+                .respond(response()
+                        .withStatusCode(200)
+                        .withHeader("Content-Type", "application/json")
+                        .withBody(objectMapper.writeValueAsString(initialResponse)));
 
-        mockMvc.perform(get(BASE_URL))
-            .andExpect(status().isOk());
+        mockMvc.perform(get(BASE_URL)).andExpect(status().isOk());
 
         EmployeeCreateRequest createRequest = new EmployeeCreateRequest();
         createRequest.setName("New Employee");
@@ -289,40 +452,37 @@ class EmployeeIntegrationTest {
         createResponse.setStatus("success");
 
         mockServer
-            .when(request().withMethod("POST").withPath("/api/v1/employee"))
-            .respond(response()
-                .withStatusCode(201)
-                .withHeader("Content-Type", "application/json")
-                .withBody(objectMapper.writeValueAsString(createResponse)));
+                .when(request().withMethod("POST").withPath("/api/v1/employee"))
+                .respond(response()
+                        .withStatusCode(201)
+                        .withHeader("Content-Type", "application/json")
+                        .withBody(objectMapper.writeValueAsString(createResponse)));
 
         mockMvc.perform(post(BASE_URL)
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(createRequest)))
-            .andExpect(status().isCreated());
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(createRequest)))
+                .andExpect(status().isCreated());
 
         List<EmployeeDTO> updatedEmployees = Arrays.asList(
-            createEmployee("1", "John Doe", 75000, 30, "Software Engineer", "john.doe@company.com"),
-            createEmployee("2", "New Employee", 80000, 25, "Developer", "new@company.com")
-        );
+                createEmployee("1", "John Doe", 75000, 30, "Software Engineer", "john.doe@company.com"),
+                createEmployee("2", "New Employee", 80000, 25, "Developer", "new@company.com"));
         EmployeeListResponse updatedResponse = new EmployeeListResponse();
         updatedResponse.setData(updatedEmployees);
         updatedResponse.setStatus("success");
 
         mockServer.reset();
         mockServer
-            .when(request().withMethod("GET").withPath("/api/v1/employee"))
-            .respond(response()
-                .withStatusCode(200)
-                .withHeader("Content-Type", "application/json")
-                .withBody(objectMapper.writeValueAsString(updatedResponse)));
+                .when(request().withMethod("GET").withPath("/api/v1/employee"))
+                .respond(response()
+                        .withStatusCode(200)
+                        .withHeader("Content-Type", "application/json")
+                        .withBody(objectMapper.writeValueAsString(updatedResponse)));
 
-        mockMvc.perform(get(BASE_URL))
-            .andExpect(status().isOk())
-            .andExpect(jsonPath("$", hasSize(2)));
+        mockMvc.perform(get(BASE_URL)).andExpect(status().isOk()).andExpect(jsonPath("$", hasSize(2)));
     }
 
     @Test
-    @Order(10)
+    @Order(15)
     @DisplayName("Should test end-to-end workflow")
     void shouldTestEndToEndWorkflow() throws Exception {
         EmployeeListResponse emptyResponse = new EmployeeListResponse();
@@ -330,15 +490,13 @@ class EmployeeIntegrationTest {
         emptyResponse.setStatus("success");
 
         mockServer
-            .when(request().withMethod("GET").withPath("/api/v1/employee"))
-            .respond(response()
-                .withStatusCode(200)
-                .withHeader("Content-Type", "application/json")
-                .withBody(objectMapper.writeValueAsString(emptyResponse)));
+                .when(request().withMethod("GET").withPath("/api/v1/employee"))
+                .respond(response()
+                        .withStatusCode(200)
+                        .withHeader("Content-Type", "application/json")
+                        .withBody(objectMapper.writeValueAsString(emptyResponse)));
 
-        mockMvc.perform(get(BASE_URL))
-            .andExpect(status().isOk())
-            .andExpect(jsonPath("$", hasSize(0)));
+        mockMvc.perform(get(BASE_URL)).andExpect(status().isOk()).andExpect(jsonPath("$", hasSize(0)));
 
         EmployeeCreateRequest createRequest1 = new EmployeeCreateRequest();
         createRequest1.setName("Alice Johnson");
@@ -346,23 +504,24 @@ class EmployeeIntegrationTest {
         createRequest1.setAge(28);
         createRequest1.setTitle("Senior Developer");
 
-        EmployeeDTO employee1 = createEmployee("1", "Alice Johnson", 90000, 28, "Senior Developer", "alice@company.com");
+        EmployeeDTO employee1 =
+                createEmployee("1", "Alice Johnson", 90000, 28, "Senior Developer", "alice@company.com");
         EmployeeResponse createResponse1 = new EmployeeResponse();
         createResponse1.setData(employee1);
         createResponse1.setStatus("success");
 
         mockServer
-            .when(request().withMethod("POST").withPath("/api/v1/employee"))
-            .respond(response()
-                .withStatusCode(201)
-                .withHeader("Content-Type", "application/json")
-                .withBody(objectMapper.writeValueAsString(createResponse1)));
+                .when(request().withMethod("POST").withPath("/api/v1/employee"))
+                .respond(response()
+                        .withStatusCode(201)
+                        .withHeader("Content-Type", "application/json")
+                        .withBody(objectMapper.writeValueAsString(createResponse1)));
 
         mockMvc.perform(post(BASE_URL)
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(createRequest1)))
-            .andExpect(status().isCreated())
-            .andExpect(jsonPath("$.name", is("Alice Johnson")));
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(createRequest1)))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.name", is("Alice Johnson")));
 
         EmployeeCreateRequest createRequest2 = new EmployeeCreateRequest();
         createRequest2.setName("Bob Smith");
@@ -377,17 +536,17 @@ class EmployeeIntegrationTest {
 
         mockServer.reset();
         mockServer
-            .when(request().withMethod("POST").withPath("/api/v1/employee"))
-            .respond(response()
-                .withStatusCode(201)
-                .withHeader("Content-Type", "application/json")
-                .withBody(objectMapper.writeValueAsString(createResponse2)));
+                .when(request().withMethod("POST").withPath("/api/v1/employee"))
+                .respond(response()
+                        .withStatusCode(201)
+                        .withHeader("Content-Type", "application/json")
+                        .withBody(objectMapper.writeValueAsString(createResponse2)));
 
         mockMvc.perform(post(BASE_URL)
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(createRequest2)))
-            .andExpect(status().isCreated())
-            .andExpect(jsonPath("$.name", is("Bob Smith")));
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(createRequest2)))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.name", is("Bob Smith")));
 
         List<EmployeeDTO> allEmployees = Arrays.asList(employee1, employee2);
         EmployeeListResponse allResponse = new EmployeeListResponse();
@@ -395,20 +554,21 @@ class EmployeeIntegrationTest {
         allResponse.setStatus("success");
 
         mockServer
-            .when(request().withMethod("GET").withPath("/api/v1/employee"))
-            .respond(response()
-                .withStatusCode(200)
-                .withHeader("Content-Type", "application/json")
-                .withBody(objectMapper.writeValueAsString(allResponse)));
+                .when(request().withMethod("GET").withPath("/api/v1/employee"))
+                .respond(response()
+                        .withStatusCode(200)
+                        .withHeader("Content-Type", "application/json")
+                        .withBody(objectMapper.writeValueAsString(allResponse)));
 
         mockMvc.perform(get(BASE_URL))
-            .andExpect(status().isOk())
-            .andExpect(jsonPath("$", hasSize(2)))
-            .andExpect(jsonPath("$[0].name", is("Alice Johnson")))
-            .andExpect(jsonPath("$[1].name", is("Bob Smith")));
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(2)))
+                .andExpect(jsonPath("$[0].name", is("Alice Johnson")))
+                .andExpect(jsonPath("$[1].name", is("Bob Smith")));
     }
 
-    private EmployeeDTO createEmployee(String id, String name, Integer salary, Integer age, String title, String email) {
+    private EmployeeDTO createEmployee(
+            String id, String name, Integer salary, Integer age, String title, String email) {
         EmployeeDTO employee = new EmployeeDTO();
         employee.setId(id);
         employee.setName(name);
