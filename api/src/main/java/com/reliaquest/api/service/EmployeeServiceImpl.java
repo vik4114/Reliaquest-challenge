@@ -70,9 +70,8 @@ public class EmployeeServiceImpl implements EmployeeService {
         log.info("Fetching employee by ID: {}", id);
 
         String url = serverBaseUrl + EMPLOYEE_BY_ID.replace(":id", id);
-        WebClient.ResponseSpec responseSpec = utils.addExceptionHandling(
-                webClient.get().uri(url).retrieve()
-        );
+        WebClient.ResponseSpec responseSpec = webClient.get().uri(url).retrieve();
+        responseSpec = utils.addExceptionHandling(responseSpec);
 
         ResponseEntity<EmployeeResponse> response = responseSpec
                 .toEntity(EmployeeResponse.class)
@@ -142,13 +141,12 @@ public class EmployeeServiceImpl implements EmployeeService {
         log.info("Creating new employee: {}", createRequest.getName());
 
         String url = serverBaseUrl + EMPLOYEE;
-        WebClient.ResponseSpec responseSpec = utils.addExceptionHandling(
-                webClient.post()
-                        .uri(url)
-                        .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
-                        .bodyValue(createRequest)
-                        .retrieve()
-        );
+        WebClient.ResponseSpec responseSpec = webClient.post()
+                .uri(url)
+                .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+                .bodyValue(createRequest)
+                .retrieve();
+        responseSpec = utils.addExceptionHandling(responseSpec);
 
         ResponseEntity<EmployeeResponse> response = responseSpec
                 .toEntity(EmployeeResponse.class)
@@ -178,12 +176,11 @@ public class EmployeeServiceImpl implements EmployeeService {
         String name = employee.getName();
 
         String url = serverBaseUrl + EMPLOYEE;
-        WebClient.ResponseSpec responseSpec = utils.addExceptionHandling(
-                webClient.method(HttpMethod.DELETE)
-                        .uri(url)
-                        .bodyValue(Map.of("name", name))
-                        .retrieve()
-        );
+        WebClient.ResponseSpec responseSpec = webClient.method(HttpMethod.DELETE)
+                .uri(url)
+                .bodyValue(Map.of("name", name))
+                .retrieve();
+        responseSpec = utils.addExceptionHandling(responseSpec);
 
         ResponseEntity<GenericResponse> response = responseSpec
                 .toEntity(GenericResponse.class)
