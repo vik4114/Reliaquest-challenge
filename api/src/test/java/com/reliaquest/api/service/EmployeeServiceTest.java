@@ -1,5 +1,10 @@
 package com.reliaquest.api.service;
 
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.*;
+
 import com.reliaquest.api.dto.EmployeeCreateRequest;
 import com.reliaquest.api.dto.EmployeeDTO;
 import com.reliaquest.api.exception.ApiException;
@@ -7,6 +12,10 @@ import com.reliaquest.api.model.EmployeeListResponse;
 import com.reliaquest.api.model.EmployeeResponse;
 import com.reliaquest.api.model.GenericResponse;
 import com.reliaquest.api.utils.Utils;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -20,16 +29,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
-
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class EmployeeServiceTest {
@@ -71,10 +70,8 @@ class EmployeeServiceTest {
 
     @Test
     void testFetchAll_ReturnsEmployees() {
-        List<EmployeeDTO> employees = Arrays.asList(
-                createEmployee("1", "Alice", 50000),
-                createEmployee("2", "Bob", 60000)
-        );
+        List<EmployeeDTO> employees =
+                Arrays.asList(createEmployee("1", "Alice", 50000), createEmployee("2", "Bob", 60000));
         EmployeeListResponse listResponse = new EmployeeListResponse();
         listResponse.setData(employees);
         ResponseEntity<EmployeeListResponse> responseEntity = new ResponseEntity<>(listResponse, HttpStatus.OK);
@@ -162,8 +159,7 @@ class EmployeeServiceTest {
         List<EmployeeDTO> employees = Arrays.asList(
                 createEmployee("1", "Alice", 50000),
                 createEmployee("2", "Bob", 60000),
-                createEmployee("3", "Alicia", 55000)
-        );
+                createEmployee("3", "Alicia", 55000));
 
         try (MockedStatic<AopContext> aopContextMock = mockStatic(AopContext.class)) {
             aopContextMock.when(AopContext::currentProxy).thenReturn(spyService);
@@ -180,10 +176,8 @@ class EmployeeServiceTest {
     @Test
     void testSearchByName_CaseInsensitive() {
         EmployeeServiceImpl spyService = spy(employeeService);
-        List<EmployeeDTO> employees = Arrays.asList(
-                createEmployee("1", "ALICE", 50000),
-                createEmployee("2", "bob", 60000)
-        );
+        List<EmployeeDTO> employees =
+                Arrays.asList(createEmployee("1", "ALICE", 50000), createEmployee("2", "bob", 60000));
 
         try (MockedStatic<AopContext> aopContextMock = mockStatic(AopContext.class)) {
             aopContextMock.when(AopContext::currentProxy).thenReturn(spyService);
@@ -211,8 +205,7 @@ class EmployeeServiceTest {
                 createEmployee("9", "I", 900000),
                 createEmployee("10", "J", 1000000),
                 createEmployee("11", "K", 1100000),
-                createEmployee("12", "L", 1200000)
-        );
+                createEmployee("12", "L", 1200000));
 
         try (MockedStatic<AopContext> aopContextMock = mockStatic(AopContext.class)) {
             aopContextMock.when(AopContext::currentProxy).thenReturn(spyService);
@@ -232,8 +225,7 @@ class EmployeeServiceTest {
         List<EmployeeDTO> employees = Arrays.asList(
                 createEmployee("1", "Alice", 50000),
                 createEmployee("2", "Bob", 60000),
-                createEmployee("3", "Charlie", 70000)
-        );
+                createEmployee("3", "Charlie", 70000));
 
         try (MockedStatic<AopContext> aopContextMock = mockStatic(AopContext.class)) {
             aopContextMock.when(AopContext::currentProxy).thenReturn(spyService);
@@ -253,8 +245,7 @@ class EmployeeServiceTest {
         List<EmployeeDTO> employees = Arrays.asList(
                 createEmployee("1", "Alice", 50000),
                 createEmployee("2", "Bob", 100000),
-                createEmployee("3", "Charlie", 75000)
-        );
+                createEmployee("3", "Charlie", 75000));
 
         try (MockedStatic<AopContext> aopContextMock = mockStatic(AopContext.class)) {
             aopContextMock.when(AopContext::currentProxy).thenReturn(spyService);

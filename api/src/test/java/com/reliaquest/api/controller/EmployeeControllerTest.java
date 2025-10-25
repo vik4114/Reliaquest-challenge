@@ -1,8 +1,16 @@
 package com.reliaquest.api.controller;
 
+import static org.hamcrest.Matchers.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+
 import com.reliaquest.api.dto.EmployeeCreateRequest;
 import com.reliaquest.api.dto.EmployeeDTO;
 import com.reliaquest.api.service.EmployeeService;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -11,13 +19,6 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import static org.hamcrest.Matchers.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
-import static org.mockito.ArgumentMatchers.any;
 
 @WebMvcTest(EmployeeController.class)
 class EmployeeControllerTest {
@@ -53,8 +54,7 @@ class EmployeeControllerTest {
     void getAllEmployees_shouldReturnListOfEmployees() throws Exception {
         List<EmployeeDTO> employees = Arrays.asList(employee1, employee2);
         Mockito.when(employeeService.fetchAll()).thenReturn(employees);
-        mockMvc.perform(get("/api/v1/employee")
-                .contentType(MediaType.APPLICATION_JSON))
+        mockMvc.perform(get("/api/v1/employee").contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].id").value("1"))
                 .andExpect(jsonPath("$[0].name").value("John Doe"))
@@ -65,8 +65,7 @@ class EmployeeControllerTest {
     @Test
     void getEmployeesByNameSearch_shouldReturnMatchingEmployees() throws Exception {
         Mockito.when(employeeService.searchByName("John")).thenReturn(Collections.singletonList(employee1));
-        mockMvc.perform(get("/api/v1/employee/search/John")
-                .contentType(MediaType.APPLICATION_JSON))
+        mockMvc.perform(get("/api/v1/employee/search/John").contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].name").value("John Doe"));
     }
@@ -74,8 +73,7 @@ class EmployeeControllerTest {
     @Test
     void getEmployeeById_shouldReturnEmployee() throws Exception {
         Mockito.when(employeeService.fetchById("1")).thenReturn(employee1);
-        mockMvc.perform(get("/api/v1/employee/1")
-                .contentType(MediaType.APPLICATION_JSON))
+        mockMvc.perform(get("/api/v1/employee/1").contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value("1"))
                 .andExpect(jsonPath("$.name").value("John Doe"));
@@ -84,8 +82,7 @@ class EmployeeControllerTest {
     @Test
     void getHighestSalaryOfEmployees_shouldReturnHighestSalary() throws Exception {
         Mockito.when(employeeService.getHighestSalary()).thenReturn(90000);
-        mockMvc.perform(get("/api/v1/employee/highestSalary")
-                .contentType(MediaType.APPLICATION_JSON))
+        mockMvc.perform(get("/api/v1/employee/highestSalary").contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(content().string("90000"));
     }
@@ -95,7 +92,7 @@ class EmployeeControllerTest {
         List<String> names = Arrays.asList("John Doe", "Jane Smith");
         Mockito.when(employeeService.getTopTenEmployeeNamesBySalary()).thenReturn(names);
         mockMvc.perform(get("/api/v1/employee/topTenHighestEarningEmployeeNames")
-                .contentType(MediaType.APPLICATION_JSON))
+                        .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(2)))
                 .andExpect(jsonPath("$[0]").value("John Doe"))
@@ -120,15 +117,11 @@ class EmployeeControllerTest {
 
         Mockito.when(employeeService.create(any(EmployeeCreateRequest.class))).thenReturn(employee);
 
-        String json = "{" +
-                "\"name\":\"John Doe\"," +
-                "\"salary\":50000," +
-                "\"age\":30," +
-                "\"title\":\"Developer\"}";
+        String json = "{" + "\"name\":\"John Doe\"," + "\"salary\":50000," + "\"age\":30," + "\"title\":\"Developer\"}";
 
         mockMvc.perform(post("/api/v1/employee")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(json))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(json))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.id").value("1"))
                 .andExpect(jsonPath("$.name").value("John Doe"));
@@ -137,10 +130,8 @@ class EmployeeControllerTest {
     @Test
     void deleteEmployeeById_shouldReturnSuccessMessage() throws Exception {
         Mockito.when(employeeService.deleteById("1")).thenReturn("Employee deleted");
-        mockMvc.perform(delete("/api/v1/employee/1")
-                .contentType(MediaType.APPLICATION_JSON))
+        mockMvc.perform(delete("/api/v1/employee/1").contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(content().string("Employee deleted"));
     }
 }
-

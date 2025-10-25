@@ -10,18 +10,17 @@ import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-
 @RestController
 @RequestMapping("/api/v1/employee")
 @Slf4j
-public class EmployeeController implements IEmployeeController<EmployeeDTO, EmployeeCreateRequest>{
+public class EmployeeController implements IEmployeeController<EmployeeDTO, EmployeeCreateRequest> {
 
     private final EmployeeService employeeService;
 
@@ -38,23 +37,17 @@ public class EmployeeController implements IEmployeeController<EmployeeDTO, Empl
             responseCode = "200",
             description = "Success",
             content =
-            @Content(
-                    mediaType = "application/json",
-                    array = @ArraySchema(schema = @Schema(implementation = EmployeeDTO.class))))
+                    @Content(
+                            mediaType = "application/json",
+                            array = @ArraySchema(schema = @Schema(implementation = EmployeeDTO.class))))
     @ApiResponse(
             responseCode = "429",
             description = "Too Many Requests",
-            content =
-            @Content(
-                    mediaType = "application/json",
-                    schema = @Schema(implementation = ApiException.class)))
+            content = @Content(mediaType = "application/json", schema = @Schema(implementation = ApiException.class)))
     @ApiResponse(
             responseCode = "500",
             description = "Internal Server Error",
-            content =
-            @Content(
-                    mediaType = "application/json",
-                    schema = @Schema(implementation = ApiException.class)))
+            content = @Content(mediaType = "application/json", schema = @Schema(implementation = ApiException.class)))
     public ResponseEntity<List<EmployeeDTO>> getAllEmployees() {
         log.info("Received request: getAllEmployees");
 
@@ -72,23 +65,17 @@ public class EmployeeController implements IEmployeeController<EmployeeDTO, Empl
             responseCode = "200",
             description = "Success",
             content =
-            @Content(
-                    mediaType = "application/json",
-                    array = @ArraySchema(schema = @Schema(implementation = EmployeeDTO.class))))
+                    @Content(
+                            mediaType = "application/json",
+                            array = @ArraySchema(schema = @Schema(implementation = EmployeeDTO.class))))
     @ApiResponse(
             responseCode = "429",
             description = "Too Many Requests",
-            content =
-            @Content(
-                    mediaType = "application/json",
-                    schema = @Schema(implementation = ApiException.class)))
+            content = @Content(mediaType = "application/json", schema = @Schema(implementation = ApiException.class)))
     @ApiResponse(
             responseCode = "500",
             description = "Internal Server Error",
-            content =
-            @Content(
-                    mediaType = "application/json",
-                    schema = @Schema(implementation = ApiException.class)))
+            content = @Content(mediaType = "application/json", schema = @Schema(implementation = ApiException.class)))
     public ResponseEntity<List<EmployeeDTO>> getEmployeesByNameSearch(@PathVariable String name) {
         log.info("Received request: getEmployeesByNameSearch with name={}", name);
 
@@ -105,29 +92,19 @@ public class EmployeeController implements IEmployeeController<EmployeeDTO, Empl
     @ApiResponse(
             responseCode = "200",
             description = "Success",
-            content =
-            @Content(mediaType = "application/json", schema = @Schema(implementation = EmployeeDTO.class)))
+            content = @Content(mediaType = "application/json", schema = @Schema(implementation = EmployeeDTO.class)))
     @ApiResponse(
             responseCode = "429",
             description = "Too Many Requests",
-            content =
-            @Content(
-                    mediaType = "application/json",
-                    schema = @Schema(implementation = ApiException.class)))
+            content = @Content(mediaType = "application/json", schema = @Schema(implementation = ApiException.class)))
     @ApiResponse(
             responseCode = "404",
             description = "Employee Not Found",
-            content =
-            @Content(
-                    mediaType = "application/json",
-                    schema = @Schema(implementation = ApiException.class)))
+            content = @Content(mediaType = "application/json", schema = @Schema(implementation = ApiException.class)))
     @ApiResponse(
             responseCode = "500",
             description = "Internal Server Error",
-            content =
-            @Content(
-                    mediaType = "application/json",
-                    schema = @Schema(implementation = ApiException.class)))
+            content = @Content(mediaType = "application/json", schema = @Schema(implementation = ApiException.class)))
     public ResponseEntity<EmployeeDTO> getEmployeeById(@PathVariable String id) {
         log.info("Received request: getEmployeeById with id={}", id);
 
@@ -144,22 +121,15 @@ public class EmployeeController implements IEmployeeController<EmployeeDTO, Empl
     @ApiResponse(
             responseCode = "200",
             description = "Success",
-            content =
-            @Content(mediaType = "application/json", schema = @Schema(implementation = Integer.class)))
+            content = @Content(mediaType = "application/json", schema = @Schema(implementation = Integer.class)))
     @ApiResponse(
             responseCode = "429",
             description = "Too Many Requests",
-            content =
-            @Content(
-                    mediaType = "application/json",
-                    schema = @Schema(implementation = ApiException.class)))
+            content = @Content(mediaType = "application/json", schema = @Schema(implementation = ApiException.class)))
     @ApiResponse(
             responseCode = "500",
             description = "Internal Server Error",
-            content =
-            @Content(
-                    mediaType = "application/json",
-                    schema = @Schema(implementation = ApiException.class)))
+            content = @Content(mediaType = "application/json", schema = @Schema(implementation = ApiException.class)))
     public ResponseEntity<Integer> getHighestSalaryOfEmployees() {
         log.info("Received request: getHighestSalaryOfEmployees");
 
@@ -177,23 +147,17 @@ public class EmployeeController implements IEmployeeController<EmployeeDTO, Empl
             responseCode = "200",
             description = "Success",
             content =
-            @Content(
-                    mediaType = "application/json",
-                    array = @ArraySchema(schema = @Schema(implementation = String.class))))
+                    @Content(
+                            mediaType = "application/json",
+                            array = @ArraySchema(schema = @Schema(implementation = String.class))))
     @ApiResponse(
             responseCode = "429",
             description = "Too Many Requests",
-            content =
-            @Content(
-                    mediaType = "application/json",
-                    schema = @Schema(implementation = ApiException.class)))
+            content = @Content(mediaType = "application/json", schema = @Schema(implementation = ApiException.class)))
     @ApiResponse(
             responseCode = "500",
             description = "Internal Server Error",
-            content =
-            @Content(
-                    mediaType = "application/json",
-                    schema = @Schema(implementation = ApiException.class)))
+            content = @Content(mediaType = "application/json", schema = @Schema(implementation = ApiException.class)))
     public ResponseEntity<List<String>> getTopTenHighestEarningEmployeeNames() {
         log.info("Received request: getTopTenHighestEarningEmployeeNames");
 
@@ -207,40 +171,32 @@ public class EmployeeController implements IEmployeeController<EmployeeDTO, Empl
     @Operation(
             summary = ApiDocsConstant.CREATE_EMPLOYEE_SUMMARY,
             description = ApiDocsConstant.CREATE_EMPLOYEE_DESCRIPTION,
-            requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
-                    description = "Employee creation request payload",
-                    required = true,
-                    content =
-                    @Content(
-                            mediaType = "application/json",
-                            schema = @Schema(implementation = EmployeeCreateRequest.class))))
+            requestBody =
+                    @io.swagger.v3.oas.annotations.parameters.RequestBody(
+                            description = "Employee creation request payload",
+                            required = true,
+                            content =
+                                    @Content(
+                                            mediaType = "application/json",
+                                            schema = @Schema(implementation = EmployeeCreateRequest.class))))
     @ApiResponse(
             responseCode = "201",
             description = "Employee Created Successfully",
-            content =
-            @Content(mediaType = "application/json", schema = @Schema(implementation = EmployeeDTO.class)))
+            content = @Content(mediaType = "application/json", schema = @Schema(implementation = EmployeeDTO.class)))
     @ApiResponse(
             responseCode = "400",
             description = "Bad Request",
-            content =
-            @Content(
-                    mediaType = "application/json",
-                    schema = @Schema(implementation = ApiException.class)))
+            content = @Content(mediaType = "application/json", schema = @Schema(implementation = ApiException.class)))
     @ApiResponse(
             responseCode = "429",
             description = "Too Many Requests",
-            content =
-            @Content(
-                    mediaType = "application/json",
-                    schema = @Schema(implementation = ApiException.class)))
+            content = @Content(mediaType = "application/json", schema = @Schema(implementation = ApiException.class)))
     @ApiResponse(
             responseCode = "500",
             description = "Internal Server Error",
-            content =
-            @Content(
-                    mediaType = "application/json",
-                    schema = @Schema(implementation = ApiException.class)))
-    public ResponseEntity<EmployeeDTO> createEmployee(@Validated @RequestBody EmployeeCreateRequest employeeCreateRequest) {
+            content = @Content(mediaType = "application/json", schema = @Schema(implementation = ApiException.class)))
+    public ResponseEntity<EmployeeDTO> createEmployee(
+            @Validated @RequestBody EmployeeCreateRequest employeeCreateRequest) {
         log.info("Received request: createEmployee with payload={}", employeeCreateRequest);
         return ResponseEntity.status(HttpStatus.CREATED).body(employeeService.create(employeeCreateRequest));
     }
@@ -253,29 +209,19 @@ public class EmployeeController implements IEmployeeController<EmployeeDTO, Empl
     @ApiResponse(
             responseCode = "200",
             description = "Employee Deleted Successfully",
-            content =
-            @Content(mediaType = "application/json", schema = @Schema(implementation = String.class)))
+            content = @Content(mediaType = "application/json", schema = @Schema(implementation = String.class)))
     @ApiResponse(
             responseCode = "429",
             description = "Too Many Requests",
-            content =
-            @Content(
-                    mediaType = "application/json",
-                    schema = @Schema(implementation = ApiException.class)))
+            content = @Content(mediaType = "application/json", schema = @Schema(implementation = ApiException.class)))
     @ApiResponse(
             responseCode = "404",
             description = "Employee Not Found",
-            content =
-            @Content(
-                    mediaType = "application/json",
-                    schema = @Schema(implementation = ApiException.class)))
+            content = @Content(mediaType = "application/json", schema = @Schema(implementation = ApiException.class)))
     @ApiResponse(
             responseCode = "500",
             description = "Internal Server Error",
-            content =
-            @Content(
-                    mediaType = "application/json",
-                    schema = @Schema(implementation = ApiException.class)))
+            content = @Content(mediaType = "application/json", schema = @Schema(implementation = ApiException.class)))
     public ResponseEntity<String> deleteEmployeeById(@PathVariable String id) {
         log.info("Received request: deleteEmployeeById with id={}", id);
         return ResponseEntity.ok(employeeService.deleteById(id));

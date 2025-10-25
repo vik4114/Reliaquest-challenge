@@ -1,11 +1,10 @@
 package com.reliaquest.api.model;
 
 import com.reliaquest.api.dto.EmployeeDTO;
+import java.util.List;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-
-import java.util.List;
 
 @NoArgsConstructor
 @Data

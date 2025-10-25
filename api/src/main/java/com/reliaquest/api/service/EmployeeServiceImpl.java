@@ -1,5 +1,8 @@
 package com.reliaquest.api.service;
 
+import static com.reliaquest.api.constants.Constants.EMPLOYEE;
+import static com.reliaquest.api.constants.Constants.EMPLOYEE_BY_ID;
+
 import com.reliaquest.api.dto.EmployeeCreateRequest;
 import com.reliaquest.api.dto.EmployeeDTO;
 import com.reliaquest.api.exception.ApiException;
@@ -9,6 +12,10 @@ import com.reliaquest.api.model.EmployeeResponse;
 import com.reliaquest.api.model.GenericResponse;
 import com.reliaquest.api.utils.Retry;
 import com.reliaquest.api.utils.Utils;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.aop.framework.AopContext;
@@ -18,14 +25,6 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
-
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
-
-import static com.reliaquest.api.constants.Constants.EMPLOYEE;
-import static com.reliaquest.api.constants.Constants.EMPLOYEE_BY_ID;
 
 @Slf4j
 @Service
@@ -45,13 +44,11 @@ public class EmployeeServiceImpl implements EmployeeService {
         log.info("Fetching all employees from Mock Employee API");
 
         String url = serverBaseUrl + EMPLOYEE;
-        WebClient.ResponseSpec responseSpec = utils.addExceptionHandling(
-                webClient.get().uri(url).retrieve()
-        );
+        WebClient.ResponseSpec responseSpec =
+                utils.addExceptionHandling(webClient.get().uri(url).retrieve());
 
-        ResponseEntity<EmployeeListResponse> response = responseSpec
-                .toEntity(EmployeeListResponse.class)
-                .block();
+        ResponseEntity<EmployeeListResponse> response =
+                responseSpec.toEntity(EmployeeListResponse.class).block();
 
         if (response == null || response.getBody() == null) {
             log.warn("Empty response received while fetching all employees");
@@ -73,9 +70,8 @@ public class EmployeeServiceImpl implements EmployeeService {
         WebClient.ResponseSpec responseSpec = webClient.get().uri(url).retrieve();
         responseSpec = utils.addExceptionHandling(responseSpec);
 
-        ResponseEntity<EmployeeResponse> response = responseSpec
-                .toEntity(EmployeeResponse.class)
-                .block();
+        ResponseEntity<EmployeeResponse> response =
+                responseSpec.toEntity(EmployeeResponse.class).block();
 
         if (response != null && response.getBody() != null) {
             log.info("Employee found with ID: {}", id);
@@ -133,24 +129,23 @@ public class EmployeeServiceImpl implements EmployeeService {
 
     @CacheEvict(
             value = {"employeesAll", "employeeById", "searchByName", "highestSalary", "topTenNamesBySalary"},
-            allEntries = true
-    )
+            allEntries = true)
     @Retry
     @Override
     public EmployeeDTO create(EmployeeCreateRequest createRequest) {
         log.info("Creating new employee: {}", createRequest.getName());
 
         String url = serverBaseUrl + EMPLOYEE;
-        WebClient.ResponseSpec responseSpec = webClient.post()
+        WebClient.ResponseSpec responseSpec = webClient
+                .post()
                 .uri(url)
                 .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
                 .bodyValue(createRequest)
                 .retrieve();
         responseSpec = utils.addExceptionHandling(responseSpec);
 
-        ResponseEntity<EmployeeResponse> response = responseSpec
-                .toEntity(EmployeeResponse.class)
-                .block();
+        ResponseEntity<EmployeeResponse> response =
+                responseSpec.toEntity(EmployeeResponse.class).block();
 
         if (response != null && response.getBody() != null) {
             EmployeeDTO created = response.getBody().getData();
@@ -164,8 +159,7 @@ public class EmployeeServiceImpl implements EmployeeService {
 
     @CacheEvict(
             value = {"employeesAll", "employeeById", "searchByName", "highestSalary", "topTenNamesBySalary"},
-            allEntries = true
-    )
+            allEntries = true)
     @Retry
     @Override
     public String deleteById(String id) {
@@ -176,15 +170,15 @@ public class EmployeeServiceImpl implements EmployeeService {
         String name = employee.getName();
 
         String url = serverBaseUrl + EMPLOYEE;
-        WebClient.ResponseSpec responseSpec = webClient.method(HttpMethod.DELETE)
+        WebClient.ResponseSpec responseSpec = webClient
+                .method(HttpMethod.DELETE)
                 .uri(url)
                 .bodyValue(Map.of("name", name))
                 .retrieve();
         responseSpec = utils.addExceptionHandling(responseSpec);
 
-        ResponseEntity<GenericResponse> response = responseSpec
-                .toEntity(GenericResponse.class)
-                .block();
+        ResponseEntity<GenericResponse> response =
+                responseSpec.toEntity(GenericResponse.class).block();
 
         if (response != null && response.getStatusCode() == HttpStatus.OK) {
             ApiResponse body = response.getBody();
@@ -195,8 +189,10 @@ public class EmployeeServiceImpl implements EmployeeService {
         }
 
         log.error("Failed to delete employee with ID: {}", id);
-        throw new ApiException("Failed to delete employee with id " + id,
-                response != null ? HttpStatus.valueOf(response.getStatusCode().value()) : HttpStatus.INTERNAL_SERVER_ERROR);
+        throw new ApiException(
+                "Failed to delete employee with id " + id,
+                response != null
+                        ? HttpStatus.valueOf(response.getStatusCode().value())
+                        : HttpStatus.INTERNAL_SERVER_ERROR);
     }
 }
-

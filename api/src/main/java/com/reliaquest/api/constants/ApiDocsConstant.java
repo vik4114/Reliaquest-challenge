@@ -7,7 +7,8 @@ public class ApiDocsConstant {
     }
 
     public static final String GET_ALL_EMPLOYEES_SUMMARY = "Retrieve all employees";
-    public static final String GET_ALL_EMPLOYEES_DESCRIPTION = "Returns the complete list of employees stored in the system";
+    public static final String GET_ALL_EMPLOYEES_DESCRIPTION =
+            "Returns the complete list of employees stored in the system";
 
     public static final String SEARCH_EMPLOYEES_BY_NAME_SUMMARY = "Find employees by name";
     public static final String SEARCH_EMPLOYEES_BY_NAME_DESCRIPTION =
@@ -33,4 +34,3 @@ public class ApiDocsConstant {
     public static final String DELETES_AN_EMPLOYEE_BY_ID_DESCRIPTION =
             "Deletes the employee entry associated with the specified ID from the database";
 }
-

@@ -40,8 +40,12 @@ public class AppConfig {
     @Bean
     public WebClient webClient() throws Exception {
         try {
-            log.info("Initializing WebClient with connectionTimeout={}ms, readTimeout={}ms, writeTimeout={}ms, responseTimeout={}ms",
-                    connectionTimeoutMillis, readTimeoutMillis, writeTimeoutMillis, responseTimeoutMillis);
+            log.info(
+                    "Initializing WebClient with connectionTimeout={}ms, readTimeout={}ms, writeTimeout={}ms, responseTimeout={}ms",
+                    connectionTimeoutMillis,
+                    readTimeoutMillis,
+                    writeTimeoutMillis,
+                    responseTimeoutMillis);
 
             // SSL context allowing all certificates (for local/mock API)
             SslContext sslContext = SslContextBuilder.forClient()
@@ -59,8 +63,8 @@ public class AppConfig {
                     .option(ChannelOption.SO_KEEPALIVE, true)
                     .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, connectionTimeoutMillis)
                     .responseTimeout(Duration.ofMillis(responseTimeoutMillis))
-                    .doOnConnected(conn -> conn
-                            .addHandlerLast(new ReadTimeoutHandler(readTimeoutMillis, TimeUnit.MILLISECONDS))
+                    .doOnConnected(conn -> conn.addHandlerLast(
+                                    new ReadTimeoutHandler(readTimeoutMillis, TimeUnit.MILLISECONDS))
                             .addHandlerLast(new WriteTimeoutHandler(writeTimeoutMillis, TimeUnit.MILLISECONDS)));
 
             // Build WebClient

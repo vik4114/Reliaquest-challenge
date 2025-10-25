@@ -15,10 +15,9 @@ import org.springframework.retry.annotation.Retryable;
         maxAttemptsExpression = "#{${retry.max-attempts}}",
         listeners = {"customRetryListener"},
         backoff =
-        @Backoff(
-                delayExpression = "#{${retry.delay-ms}}",
-                multiplierExpression = "#{${retry.multiplier}}",
-                maxDelayExpression = "#{${retry.max-delay-ms}}",
-                randomExpression = "#{${retry.jitter}}"))
+                @Backoff(
+                        delayExpression = "#{${retry.delay-ms}}",
+                        multiplierExpression = "#{${retry.multiplier}}",
+                        maxDelayExpression = "#{${retry.max-delay-ms}}",
+                        randomExpression = "#{${retry.jitter}}"))
 public @interface Retry {}
-
