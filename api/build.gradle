@@ -14,6 +14,7 @@ dependencies {
     implementation 'com.github.ben-manes.caffeine:caffeine:3.1.8'
 
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testImplementation 'org.mock-server:mockserver-netty:5.14.0'
 }
 
 springBoot {
