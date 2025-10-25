@@ -4,12 +4,14 @@ import com.reliaquest.api.constants.ApiDocsConstant;
 import com.reliaquest.api.dto.EmployeeCreateRequest;
 import com.reliaquest.api.dto.EmployeeDTO;
 import com.reliaquest.api.exception.ApiException;
+import com.reliaquest.api.service.EmployeeService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -21,6 +23,11 @@ import java.util.List;
 @Slf4j
 public class EmployeeController implements IEmployeeController<EmployeeDTO, EmployeeCreateRequest>{
 
+    private final EmployeeService employeeService;
+
+    public EmployeeController(EmployeeService employeeService) {
+        this.employeeService = employeeService;
+    }
 
     @Override
     @GetMapping
@@ -50,7 +57,10 @@ public class EmployeeController implements IEmployeeController<EmployeeDTO, Empl
                     schema = @Schema(implementation = ApiException.class)))
     public ResponseEntity<List<EmployeeDTO>> getAllEmployees() {
         log.info("Received request: getAllEmployees");
-        return null;
+
+        List<EmployeeDTO> employeeDTOList = employeeService.fetchAll();
+        log.debug("Fetched {} employees", employeeDTOList.size());
+        return ResponseEntity.ok(employeeDTOList);
     }
 
     @Override
@@ -81,7 +91,10 @@ public class EmployeeController implements IEmployeeController<EmployeeDTO, Empl
                     schema = @Schema(implementation = ApiException.class)))
     public ResponseEntity<List<EmployeeDTO>> getEmployeesByNameSearch(@PathVariable String name) {
         log.info("Received request: getEmployeesByNameSearch with name={}", name);
-        return null;
+
+        List<EmployeeDTO> employeeDTOList = employeeService.searchByName(name);
+        log.debug("Found {} employees matching name '{}'", employeeDTOList.size(), name);
+        return ResponseEntity.ok(employeeDTOList);
     }
 
     @Override
@@ -117,7 +130,10 @@ public class EmployeeController implements IEmployeeController<EmployeeDTO, Empl
                     schema = @Schema(implementation = ApiException.class)))
     public ResponseEntity<EmployeeDTO> getEmployeeById(@PathVariable String id) {
         log.info("Received request: getEmployeeById with id={}", id);
-        return null;
+
+        EmployeeDTO employeeDTO = employeeService.fetchById(id);
+        log.debug("Fetched employee: {}", employeeDTO);
+        return ResponseEntity.ok(employeeDTO);
     }
 
     @Override
@@ -146,7 +162,10 @@ public class EmployeeController implements IEmployeeController<EmployeeDTO, Empl
                     schema = @Schema(implementation = ApiException.class)))
     public ResponseEntity<Integer> getHighestSalaryOfEmployees() {
         log.info("Received request: getHighestSalaryOfEmployees");
-        return null;
+
+        Integer highestSalary = employeeService.getHighestSalary();
+        log.debug("Highest salary among employees: {}", highestSalary);
+        return ResponseEntity.ok(highestSalary);
     }
 
     @Override
@@ -177,7 +196,10 @@ public class EmployeeController implements IEmployeeController<EmployeeDTO, Empl
                     schema = @Schema(implementation = ApiException.class)))
     public ResponseEntity<List<String>> getTopTenHighestEarningEmployeeNames() {
         log.info("Received request: getTopTenHighestEarningEmployeeNames");
-        return null;
+
+        List<String> topTenEmployeeNames = employeeService.getTopTenEmployeeNamesBySalary();
+        log.debug("Top 10 highest earning employee names: {}", topTenEmployeeNames);
+        return ResponseEntity.ok(topTenEmployeeNames);
     }
 
     @Override
@@ -218,9 +240,9 @@ public class EmployeeController implements IEmployeeController<EmployeeDTO, Empl
             @Content(
                     mediaType = "application/json",
                     schema = @Schema(implementation = ApiException.class)))
-    public ResponseEntity<EmployeeDTO> createEmployee(@Validated @RequestBody EmployeeCreateRequest employeeInput) {
-        log.info("Received request: createEmployee with input={}", employeeInput);
-        return null;
+    public ResponseEntity<EmployeeDTO> createEmployee(@Validated @RequestBody EmployeeCreateRequest employeeCreateRequest) {
+        log.info("Received request: createEmployee with payload={}", employeeCreateRequest);
+        return ResponseEntity.status(HttpStatus.CREATED).body(employeeService.create(employeeCreateRequest));
     }
 
     @Override
@@ -256,6 +278,6 @@ public class EmployeeController implements IEmployeeController<EmployeeDTO, Empl
                     schema = @Schema(implementation = ApiException.class)))
     public ResponseEntity<String> deleteEmployeeById(@PathVariable String id) {
         log.info("Received request: deleteEmployeeById with id={}", id);
-        return null;
+        return ResponseEntity.ok(employeeService.deleteById(id));
     }
 }

@@ -1,2 +1,29 @@
 spring.application.name: employee-api
 server.port: 8111
+
+retry:
+  max-attempts: 3
+  delay-ms: 2000
+  multiplier: 2.0
+  max-delay-ms: 50000
+  jitter: true
+
+spring:
+  cache:
+    type: caffeine
+  aop:
+    proxy-target-class: true
+    expose-proxy: true
+web-client:
+  config:
+    connection-timeout: 600000   # 10 minutes in milliseconds
+    read-timeout: 300000         # 5 minutes in milliseconds
+    write-timeout: 300000
+    response-timeout: 300000
+
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: caches
